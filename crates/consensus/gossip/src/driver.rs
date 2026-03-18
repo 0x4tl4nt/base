@@ -156,7 +156,7 @@ where
 
                 tokio::spawn(async move {
                     let mut buffer = Vec::new();
-                    let Ok(bytes_received) = inbound_stream.read_to_end(&mut buffer).await else {
+                    let Ok(bytes_received) = read_frame_with_timeout(&mut inbound_stream, Duration::from_secs(5)).await else {
                         error!(target: "gossip", peer_id = %peer_id, "Failed to read the sync request");
                         return;
                     };
