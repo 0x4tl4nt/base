@@ -42,9 +42,16 @@ impl BaseNodeExtension for ProofsHistoryExtension {
         let proofs_history_verification_interval = args.proofs_history_verification_interval;
 
         if proofs_history_enabled {
-            let path = args
-                .proofs_history_storage_path
-                .expect("Path must be provided if not using in-memory storage");
+            let path = match args.proofs_history_storage_path {
+                Some(path) => path,
+                None => {
+                    error!(
+                        target: "reth::cli",
+                        "proofs_history is enabled but no storage path provided; disabling proofs history"
+                    );
+                    return hooks;
+                }
+            };
             info!(target: "reth::cli", "Using on-disk storage for proofs history");
 
             let mdbx = match MdbxProofsStorage::new(&path)
